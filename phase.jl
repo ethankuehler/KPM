@@ -17,7 +17,7 @@ g_data = vec(readdlm("data.csv", ',', Float64))
 x = vec(collect(range(-0.999,stop=0.999,length=size(g_data)[1])))
 g = linear_interpolation(x, g_data)
 
-M = 0.001
+M = 0.00001
 MU = [0 0.1 0.2 0.3 0.4]
 
 N = 500
@@ -41,12 +41,12 @@ title!("minimum Inteaction strength for ANTI-FERRO SDW")
 =#
 
 
-N = 10
+N = 1000
 
-MU = vec(collect(range(start=0, stop=0.5, length=N)))
+MU = vec(collect(range(start=0, stop=0.4, length=N)))
 I2 = zeros(N)
 for (i, mu) in enumerate(MU)
-    I2[i] = mag(100, mu, 1, g)[1]
+    I2[i] = 1/mag(1/0.0001, mu, M, g)[1]
 end
 
 plot(MU, I2)

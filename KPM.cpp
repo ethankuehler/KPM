@@ -75,6 +75,7 @@ void H_func(const vec &v, vec &o, int L, real t, real tp, real m, float scale) {
         //diagonal -m*sig_z term
         o[a] = -m*v[a];
         o[b] =  m*v[b];
+
         //+x upper half Tx term
         if (b + x < N and (i + 2) % (2 * L) != 0){
             o[a] +=  t*v[a + x] + tp*v[b + x];
@@ -97,13 +98,13 @@ void H_func(const vec &v, vec &o, int L, real t, real tp, real m, float scale) {
         }
         //+z upper half
         if (b + z < N){
-            o[a] =  t*v[a + z];
-            o[b] = -t*v[b + z];
+            o[a] +=  t*v[a + z];
+            o[b] += -t*v[b + z];
         }
         //+z lower half
         if (a - z >= 0){
-            o[a] =  t*v[a - z];
-            o[b] = -t*v[b - z];
+            o[a] +=  t*v[a - z];
+            o[b] += -t*v[b - z];
         }
     }
 }
@@ -148,7 +149,6 @@ std::vector<real> find_mu_low(const int order, int NR, real t, real tp, real m, 
     std::random_device rd;  // obtain a random seed from the OS
     std::mt19937 eng(rd());  // seed the generator
     std::uniform_real_distribution<real> distr(0, 2 * M_PI);  // define the range of the distribution
-
     int size = (2*Nx)*(2*Nx)*(2*Nx);
 #pragma omp parallel for
     for (int i = 0; i < NR; i++) {
@@ -166,8 +166,7 @@ std::vector<real> find_mu_low(const int order, int NR, real t, real tp, real m, 
         for (int j = 0; j < order; j++) {
             weight = v.adjoint()*T0;
             mu[j] += weight.real();
-            H_func(T1, T2, Nx, t, tp, m, scale);
-            T2 = 2*T2;
+            H_func(T1, T2, Nx, t, tp, m, 2*scale);
             T2 -= T0;
             T0 = T1;
             T1 = T2;
@@ -300,43 +299,23 @@ int main(int argc, char **argv) {
     //define constants
     const real T = 1.0; //tight binding strength
     const real TP = 1.0;
-    const real M = 1.0;
+    const real M = 3.0/2.0;
     const int NR = 300; //number of random vector samples
-    const int order = 1000; // kpm order
-    const int L = 100; // size of system
+    const int order = 500; // kpm order
+    const int L = 50; // size of system
 
     omp_set_num_threads(12);
 
-    //mat H = HG(L, T, TP, M) / 4;
+    /*mat H = HG(L, T, TP, M) / 5;
     std::cout << "H done\n";
-    //H.makeCompressed();
+    H.makeCompressed();
     std::cout << "H compressed" << std::endl;
-
-    //writeMatrixToCSV("../Cmatrix.csv", H);
+    */
     //std::cout << H << '\n';
     std::cout << "starting solver" << std::endl;
-    std::vector<real> mu = find_mu_low(order, NR, T, TP, M, L, 4.0);
+    std::vector<real> mu = find_mu_low(order, NR, T, TP, M, L, 5.0);
     //std::vector<real> mu = find_mu(H, order, NR);
 
     writeArrayToCSV(mu, "../mu.csv");
-    /*
-    vec v(H.cols());
-    vec o1(H.cols());
-    vec o2(H.cols());
-    v.setRandom();
-
-    o1 = H*v;
-    H_func(v, o2, L, T, TP, M, 4.0);
-
-    bool same = true;
-    for (int i = 0; i < o1.size(); i++){
-        if (o1[i] != o2[i]) {
-            same = false;
-        } else {
-            std::cout << "same at " << i << '\n';
-        }
-    }
-    std::cout << "they are " << same << '\n';
-     */
     return 0;
 }
