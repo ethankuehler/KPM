@@ -14,7 +14,7 @@ KZ = (np.random.random(N)*2 - 1)*2*pi
 
 t = 1
 tp = 1
-m = 3/2
+m = 0.5
 
 ep = E(KX, KY, KZ, t, tp, m)
 

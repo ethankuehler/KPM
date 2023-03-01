@@ -17,14 +17,14 @@ function Jackson(N, n)
 end
 
 
-mu = vec(readdlm("mu1.csv", ','))
+mu = vec(readdlm("mu.csv", ','))
 
 order = size(mu)[1]
 Length_of_output = 2*order
 #display(mu)
 jack(n) = Jackson(order, n)
 
-
+display(mu)
 #plot dos
 x = collect(range(-0.999,stop=0.999,length=Length_of_output))
 y = ((pi*sqrt.(-x.^2 .+ 1)).\1) .* (mu[1]*jack(0) .+ sum(2*mu[i]*T_nv(x, i-1)*jack(i) for i in (2:order)))
